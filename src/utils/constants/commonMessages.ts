@@ -3,6 +3,8 @@ interface errorMessage {
     missing: { EC: number, EM: string },
     duplicated: { EC: number, EM: string },
     unknown: { EC: number, EM: string },
+    invalid: { EC: number, EM: string },
+    notfound: { EC: number, EM: string },
 }
 export const constResponse: errorMessage = {
     ok: {
@@ -17,4 +19,10 @@ export const constResponse: errorMessage = {
     unknown: {
         EC: 3, EM: 'unknonw error, plz log error'
     },
+    invalid: {
+        EC: 4, EM: 'invalid request'
+    },
+    notfound: {
+        EC: 4, EM: 'not found record'
+    }
 }

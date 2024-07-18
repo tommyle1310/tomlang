@@ -1,3 +1,3 @@
 const { env } = process as { env: { [key: string]: string } }
 
-export const { MONGO_URI, PORT } = env
+export const { MONGO_URI, PORT, MAILTRAP_USER, MAILTRAP_PASSWORD, VERIFICATION_EMAIL, PASSWORD_RESET_LINK, RESET_PASSWORD_EMAIL, TOMLANG_EMAIL, JWT_SECRET } = env

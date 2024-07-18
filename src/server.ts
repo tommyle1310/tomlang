@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import morgan from 'morgan';
 import userRoutes from './routes/userRoutes';
+import emailRoutes from './routes/emailRoutes';
 import './db'
 import { PORT } from './utils/env';
 // Import other route handlers as needed
@@ -17,6 +18,7 @@ app.use(morgan('dev'));
 
 // Mount routes
 app.use('/api/users', userRoutes);
+app.use('/api/email', emailRoutes);
 // Mount other routes similarly
 
 // Start server
