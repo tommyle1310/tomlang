@@ -14,7 +14,7 @@ const CategorySchema: Schema<ICategory> = new Schema({
     tags: [
         {
             type: String,
-            required: true
+            // required: true
         }
     ]
 });

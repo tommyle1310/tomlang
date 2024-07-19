@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { addCategory, getAllCategories } from '../controllers/category';
+import { addCategory, editCategory, getAllCategories } from '../controllers/category';
 
 const router = express.Router();
 
@@ -9,6 +9,6 @@ router.get('/', getAllCategories);
 // POST /api/users/login
 router.post('/', addCategory);
 
-// router.patch('/:id', editCategory);
+router.patch('/', editCategory);
 
 export default router

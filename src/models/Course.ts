@@ -1,34 +1,21 @@
-import mongoose, { Document, Schema, Model } from 'mongoose';
+import mongoose, { Document, Schema, Model, ObjectId } from 'mongoose';
+import MarkdownIt from 'markdown-it';
 
-interface IContent {
-    type: 'text' | 'video' | 'image' | 'quiz' | 'interactive';
-    data: any; // Use appropriate types for different content types
-}
+// Markdown-It setup
+const md = new MarkdownIt();
 
-interface IExercise {
-    question: string;
-    options: string[];
-    correctAnswer: string;
-    explanation?: string;
-}
-
-interface IReview {
-    student: string;
-    review: string;
-    rating: number;
-    date: Date;
-}
-
-interface ICourse extends Document {
+// Define the schema for the course
+export interface ICourse extends Document {
     title: string;
+    _id: ObjectId;
     description: string;
-    content: IContent[];
+    content: string; // Markdown content
     exercises: IExercise[];
     recommendations: mongoose.Types.ObjectId[];
     author: string;
     likes: number;
     price: number;
-    poster: { url: string }[];
+    poster: { url: string, key: string };
     level: 'beginner' | 'intermediate' | 'advanced';
     duration: string;
     categories: string[];
@@ -44,17 +31,19 @@ interface ICourse extends Document {
     updatedAt: Date;
 }
 
-const ContentSchema: Schema<IContent> = new Schema({
-    type: {
-        type: String,
-        enum: ['text', 'video', 'image', 'quiz', 'interactive'],
-        required: true
-    },
-    data: {
-        type: Schema.Types.Mixed,
-        required: true
-    }
-});
+export interface IExercise {
+    question: string;
+    options: string[];
+    correctAnswer: string;
+    explanation?: string;
+}
+
+export interface IReview {
+    student: string;
+    review: string;
+    rating: number;
+    date: Date;
+}
 
 const ExerciseSchema: Schema<IExercise> = new Schema({
     question: {
@@ -94,7 +83,10 @@ const CourseSchema: Schema<ICourse> = new Schema({
         type: String,
         required: true
     },
-    content: [ContentSchema],
+    content: {
+        type: String,
+        required: true // Markdown content
+    },
     exercises: [ExerciseSchema],
     recommendations: [
         {
@@ -114,21 +106,23 @@ const CourseSchema: Schema<ICourse> = new Schema({
         type: Number,
         required: true
     },
-    poster: [
-        {
-            url: {
-                type: String,
-                required: true
-            }
+    poster: {
+        url: {
+            type: String,
+            required: true
+        },
+        key: {
+            type: String,
+            required: true
         }
-    ],
+    },
     level: {
         type: String,
         enum: ['beginner', 'intermediate', 'advanced'],
         required: true
     },
     duration: {
-        type: String,
+        type: String
         // required: true
     },
     categories: [

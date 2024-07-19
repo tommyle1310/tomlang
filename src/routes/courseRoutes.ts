@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
-import { createCourse, getAllCourses } from '../controllers/course';
+import { createCourse, getAllCourses, updateCourse } from '../controllers/course';
+import fileParser from '../middleware/fileParser';
 
 const router = express.Router();
 
@@ -12,6 +13,8 @@ router.get('/', getAllCourses)
 // POST /api/lessons: Create a new lesson.
 router.post('/', createCourse)
 // PUT /api/lessons/: Update a lesson.
+router.patch('/:courseId', updateCourse)
+
 // DELETE /api/lessons/: Delete a lesson.
 // GET /api/lessons/content/: Get lesson content.
 // POST /api/lessons/exercise/: Submit lesson exercise.
