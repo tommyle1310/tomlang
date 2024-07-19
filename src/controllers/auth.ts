@@ -1,10 +1,10 @@
 import { Request, Response } from "express"
 import { registerRequest, updatePasswordRequest } from "../@types/request/user"
 import { constResponse } from "../utils/constants/commonMessages"
-import User from "../models/user"
+import User from "../models/User"
 import { JWT_SECRET } from "../utils/env"
 import jwt from 'jsonwebtoken'
-import ResetPassword from "../models/resetPassword"
+import ResetPassword from "../models/ResetPassword"
 import { sendResetPasswordSuccess } from "../utils/mail"
 
 export const register = async (req: registerRequest, res: Response) => {

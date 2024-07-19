@@ -2,12 +2,12 @@ import { Response } from "express"
 import { sendEmailVerificationRequest, sendPasswordResetRequest, verificationEmailRequest } from "../@types/request/user"
 import { isValidObjectId } from "mongoose"
 import { constResponse } from "../utils/constants/commonMessages"
-import User from "../models/user"
-import verficationEmail from "../models/verficationEmail"
+import User from "../models/User"
+import VerificationEmail from "../models/VerificationEmail"
 import { generateToken } from "../utils/helper"
 import crypto from "crypto"
 import { sendVerificationMail, sendResetPassword } from "../utils/mail"
-import ResetPassword from "../models/resetPassword"
+import ResetPassword from "../models/ResetPassword"
 import { PASSWORD_RESET_LINK } from "../utils/env"
 
 export const sendEmailVerification = async (req: sendEmailVerificationRequest, res: Response) => {
@@ -18,12 +18,12 @@ export const sendEmailVerification = async (req: sendEmailVerificationRequest, r
     const user = await User.findById(userId)
     if (!user) return res.status(403).json(constResponse.notfound)
 
-    await verficationEmail.findOneAndDelete({
+    await VerificationEmail.findOneAndDelete({
         owner: userId
     })
 
     const token = await generateToken()
-    verficationEmail.create({
+    VerificationEmail.create({
         owner: userId,
         token
     })
@@ -35,7 +35,7 @@ export const sendEmailVerification = async (req: sendEmailVerificationRequest, r
 
 export const verifyEmail = async (req: verificationEmailRequest, res: Response) => {
     const { token, userId } = req.body
-    const verificationToken = await verficationEmail.findOne({
+    const verificationToken = await VerificationEmail.findOne({
         owner: userId
     })
 
@@ -48,7 +48,7 @@ export const verifyEmail = async (req: verificationEmailRequest, res: Response) 
         verified: true
     })
 
-    await verficationEmail.findByIdAndDelete(verificationToken._id)
+    await VerificationEmail.findByIdAndDelete(verificationToken._id)
     res.json(constResponse.ok)
 }
 

@@ -40,4 +40,4 @@ verificationEmailSchema.methods.compareToken = async function (token) {
     return result
 }
 
-export default model('verificationEmail', verificationEmailSchema) as Model<verificationEmailDocument, {}, Methods>
+export default model('VerificationEmail', verificationEmailSchema) as Model<verificationEmailDocument, {}, Methods>

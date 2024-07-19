@@ -40,4 +40,4 @@ resetPasswordSchema.methods.compareToken = async function (token) {
     return result
 }
 
-export default model('resetPassword', resetPasswordSchema) as Model<resetPasswordDocument, {}, Methods>
+export default model('ResetPassword', resetPasswordSchema) as Model<resetPasswordDocument, {}, Methods>
