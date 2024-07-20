@@ -1,7 +1,8 @@
 import { Request } from "express";
 import { ObjectId } from "mongoose";
-import { IContent, IExercise } from "../../models/Course";
+import { IExercise } from "../../models/Course";
 import { RequestWithFiles } from "../../middleware/fileParser";
+import { ILesson } from "../../models/Lesson";
 
 export interface createCourseRequest extends Request {
     body: {
@@ -20,6 +21,6 @@ export interface updateCourseRequest extends RequestWithFiles {
         poster: { url: string, key: string },
         recommendation: ObjectId,
         exercises: IExercise[],
-        content: IContent[]
+        lesson: ILesson[]
     }
 }

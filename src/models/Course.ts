@@ -9,7 +9,7 @@ export interface ICourse extends Document {
     title: string;
     _id: ObjectId;
     description: string;
-    content: string; // Markdown content
+    lessons: mongoose.Types.ObjectId[]; // References to Lesson model
     exercises: IExercise[];
     recommendations: mongoose.Types.ObjectId[];
     author: string;
@@ -83,10 +83,12 @@ const CourseSchema: Schema<ICourse> = new Schema({
         type: String,
         required: true
     },
-    content: {
-        type: String,
-        required: true // Markdown content
-    },
+    lessons: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Lesson'
+        }
+    ],
     exercises: [ExerciseSchema],
     recommendations: [
         {
@@ -123,7 +125,6 @@ const CourseSchema: Schema<ICourse> = new Schema({
     },
     duration: {
         type: String
-        // required: true
     },
     categories: [
         {
@@ -132,7 +133,7 @@ const CourseSchema: Schema<ICourse> = new Schema({
     ],
     language: {
         type: Schema.Types.ObjectId,
-        ref: 'Language', // Reference to Language model
+        ref: 'Language',
         required: true
     },
     enrollmentCount: {
