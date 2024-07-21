@@ -10,7 +10,7 @@ export interface ICourse extends Document {
     _id: ObjectId;
     description: string;
     lessons: mongoose.Types.ObjectId[]; // References to Lesson model
-    exercises: IExercise[];
+    exercises: mongoose.Types.ObjectId[];
     recommendations: mongoose.Types.ObjectId[];
     author: string;
     likes: number;
@@ -31,12 +31,7 @@ export interface ICourse extends Document {
     updatedAt: Date;
 }
 
-export interface IExercise {
-    question: string;
-    options: string[];
-    correctAnswer: string;
-    explanation?: string;
-}
+
 
 export interface IReview {
     student: string;
@@ -45,24 +40,6 @@ export interface IReview {
     date: Date;
 }
 
-const ExerciseSchema: Schema<IExercise> = new Schema({
-    question: {
-        type: String,
-        required: true
-    },
-    options: [
-        {
-            type: String
-        }
-    ],
-    correctAnswer: {
-        type: String,
-        required: true
-    },
-    explanation: {
-        type: String
-    }
-});
 
 const ReviewSchema: Schema<IReview> = new Schema({
     student: String,
@@ -89,7 +66,10 @@ const CourseSchema: Schema<ICourse> = new Schema({
             ref: 'Lesson'
         }
     ],
-    exercises: [ExerciseSchema],
+    exercises: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Exercise'
+    }],
     recommendations: [
         {
             type: Schema.Types.ObjectId,

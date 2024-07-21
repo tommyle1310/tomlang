@@ -7,8 +7,7 @@ import User from "../models/User";
 import * as formidable from 'formidable';
 import { IncomingForm } from 'formidable';
 import cloudinary from "../cloud";
-import Lesson from "../models/Lesson";
-import LessonContent from "../models/LessonContent";
+import { getAllCoursesAggregation } from "../utils/aggregation/course";
 
 
 export const getAllCourses = async (req: Request, res: Response) => {
@@ -16,9 +15,8 @@ export const getAllCourses = async (req: Request, res: Response) => {
     const limit = parseInt(req.query.limit as string) || 10;
 
     try {
-        const courses = await Course.find()
-            .skip((page - 1) * limit)
-            .limit(limit);
+        const courses = await getAllCoursesAggregation(page, limit)
+
         const totalCourses = await Course.countDocuments();
         const totalPages = Math.ceil(totalCourses / limit);
 
@@ -32,7 +30,7 @@ export const getAllCourses = async (req: Request, res: Response) => {
     } catch (error) {
         return res.status(500).json({ message: 'Error fetching courses', error });
     }
-}
+};
 
 export const createCourse = async (req: createCourseRequest, res: Response) => {
     try {

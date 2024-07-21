@@ -2,10 +2,11 @@ import { Request, Response } from "express"
 import { constResponse } from "../utils/constants/commonMessages"
 import Course from "../models/Course"
 import mongoose, { isValidObjectId, ObjectId } from "mongoose"
-import { getAllLessonsHelper } from "../utils/controllerHelpers/lessonHelper"
+import { getAllLessonsHelper } from "../utils/aggregation/lesson"
 import { addLessonRequest } from "../@types/request/lesson"
 import Lesson from "../models/Lesson"
 import LessonContent from "../models/LessonContent"
+import Exercise from "../models/Exercise"
 
 
 export const getAllLessons = async (req: Request, res: Response) => {
@@ -287,30 +288,45 @@ export const deleteLessonContent = async (req: Request, res: Response) => {
 export const deleteLesson = async (req: Request, res: Response) => {
     const { lessonId } = req.params;
 
-    if (!lessonId) return res.status(400).json({ ...constResponse.missing })
+    if (!lessonId) return res.status(400).json({ ...constResponse.missing });
 
     // Validate ObjectId
     if (!mongoose.isValidObjectId(lessonId)) {
         return res.status(422).json({ ...constResponse.invalid });
     }
-    console.log('lesosn', lessonId);
+
+    console.log('lesson', lessonId);
 
     try {
-        // Find and update the lesson content
-        const lesson = await Lesson.findOneAndDelete(
-            { _id: lessonId }
-        );
+        // Find the lesson to get the content references
+        const lesson = await Lesson.findById(lessonId);
 
-        // Check if the document was found
         if (!lesson) {
             return res.status(404).json({ ...constResponse.notfound });
         }
 
-        // Respond with the updated lesson content
-        return res.json({ ...constResponse.ok, message: 'You have deleted lesson successfully' });
+        // Get all the content IDs from the lesson
+        const contentIds = lesson.content;
+
+        // Delete all LessonContent documents referenced by the lesson
+        await LessonContent.deleteMany({ _id: { $in: contentIds } });
+
+        // Delete exercises associated with the lesson
+        await Exercise.deleteMany({ fromLesson: lessonId });
+
+        // Delete the lesson itself
+        await Lesson.findByIdAndDelete(lessonId);
+
+        await Course.updateMany(
+            { lessons: { $in: [lessonId] } },
+            { $pull: { lessons: lessonId } }
+        );
+
+        // Respond with success message
+        return res.json({ ...constResponse.ok, message: `Lesson ${lessonId} and its relevant content and exercises have been deleted` });
     } catch (error) {
         // Handle any errors that occur during the operation
         console.error(error);
-        return res.status(500).json({ ...constResponse.unknown, message: 'An error occurred while updating the lesson content.' });
+        return res.status(500).json({ ...constResponse.unknown, message: 'An error occurred while deleting the lesson.' });
     }
 };

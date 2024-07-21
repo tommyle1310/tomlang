@@ -10,6 +10,7 @@ import courseRoutes from './routes/courseRoutes';
 import languageRoutes from './routes/languageRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import lessonRoutes from './routes/lessonRoutes';
+import exerciseRoutes from './routes/exerciseRoutes';
 import './db'
 import { PORT } from './utils/env';
 // Import other route handlers as needed
@@ -22,13 +23,14 @@ app.use(cors());
 app.use(morgan('dev'));
 
 // Mount routes
-app.use('/api/users', userRoutes);
+app.use('/api/user', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/course', courseRoutes);
 app.use('/api/language', languageRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/lesson', lessonRoutes);
+app.use('/api/exercise', exerciseRoutes);
 // Mount other routes similarly
 
 // Start server

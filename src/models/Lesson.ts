@@ -5,6 +5,7 @@ import LessonContent, { ILessonContent } from './LessonContent';
 export interface ILesson extends Document {
     title: string;
     content: ObjectId[]; // Array of LessonContent references
+    exercises?: ObjectId[]; // Array of LessonContent references
     createdAt: Date;
     updatedAt: Date;
 }
@@ -19,6 +20,12 @@ const LessonSchema: Schema<ILesson> = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'LessonContent',
             required: true
+        }
+    ],
+    exercises: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Exercise',
         }
     ],
     createdAt: {
