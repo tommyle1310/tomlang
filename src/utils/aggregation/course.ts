@@ -110,6 +110,7 @@ export const getAllCoursesAggregation = async (page: number, limit: number) => {
 }
 export const getSpecificCourseDetailAggregation = async (page: number, limit: number, courseId: string) => {
     const courses = await Course.aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(courseId) } },
         // Stage 1: Skip and limit for pagination
         { $skip: (page - 1) * limit },
         { $limit: limit },

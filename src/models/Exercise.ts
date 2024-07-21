@@ -1,15 +1,18 @@
-import mongoose, { Document, Schema, Model, ObjectId } from 'mongoose';
+import { Schema, model, ObjectId, Model, Document } from 'mongoose';
 
-export interface IExercise {
-    question: string;
-    options: string[];
-    correctAnswer: number; // Updated to Number
-    explanation?: string;
+// Define the TypeScript interface
+export interface ExerciseDocument extends Document {
     title: string;
     fromLesson?: ObjectId;
+    correctAnswer: number;
+    explanation: string;
+    options: string[];
+    question: string;
+    answerCount: number; // Total number of attempts
 }
 
-const ExerciseSchema: Schema<IExercise> = new Schema({
+// Define the schema
+const exerciseSchema = new Schema<ExerciseDocument>({
     title: {
         type: String,
         required: true
@@ -18,24 +21,29 @@ const ExerciseSchema: Schema<IExercise> = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Lesson'
     },
-    question: {
-        type: String,
-        required: true
-    },
-    options: [
-        {
-            type: String
-        }
-    ],
-    correctAnswer: { // Updated to Number
+    correctAnswer: {
         type: Number,
         required: true
     },
     explanation: {
-        type: String
+        type: String,
+        required: true
+    },
+    options: [{
+        type: String,
+        required: true
+    }],
+    question: {
+        type: String,
+        required: true
+    },
+    answerCount: {
+        type: Number,
+        default: 0 // Total number of attempts
     }
+}, {
+    timestamps: true
 });
 
-const Exercise: Model<IExercise> = mongoose.model<IExercise>('Exercise', ExerciseSchema);
-
-export default Exercise;
+// Create and export the model
+export default model<ExerciseDocument>('Exercise', exerciseSchema);

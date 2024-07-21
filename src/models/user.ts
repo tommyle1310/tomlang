@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt"
-import { Model, ObjectId, Schema, model } from "mongoose"
+import mongoose, { Model, ObjectId, Schema, model } from "mongoose"
 
 interface PurchasedItem {
     type: string; // Type discriminator
@@ -7,22 +7,35 @@ interface PurchasedItem {
 }
 
 export interface userDocument {
-    _id: ObjectId
-    name: string
-    email: string
-    password: string
-    verified: boolean
+    _id: ObjectId;
+    name: string;
+    email: string;
+    password: string;
+    verified: boolean;
     profilePic?: {
-        url: string,
-        publicId: string
-    }
-    tokens: string[]
-    favorites: ObjectId[]
-    followers: ObjectId[]
-    followings: ObjectId[]
-    purchased?: PurchasedItem[]
-    age: number
+        url: string;
+        publicId: string;
+    };
+    tokens: string[];
+    favorites: ObjectId[];
+    followers: ObjectId[];
+    followings: ObjectId[];
+    purchased?: PurchasedItem[];
+    age: number;
+    progress: {
+        exercisesCompleted: {
+            exerciseId: ObjectId;
+            completed: boolean;
+        }[];
+        coursesCompleted: {
+            courseId: ObjectId; // Reference to the course
+            completionPercentage: number; // Percentage of lessons completed (0-100)
+            completedLessonIds?: ObjectId[]; // List of completed lesson IDs
+        }[];
+        lastActive: Date; // Last active timestamp
+    };
 }
+
 
 interface Methods {
     comparePassword(password: string): Promise<boolean>
@@ -76,7 +89,22 @@ const userSchema = new Schema<userDocument, {}, Methods>({
             type: Schema.Types.ObjectId,
             refPath: 'purchased.type' // Dynamic reference path based on type
         }
-    }]
+    }],
+    progress: {
+        coursesCompleted: [{
+            courseId: { type: Schema.Types.ObjectId, ref: 'Course' }, // Reference to the course
+            completionPercentage: { type: Number }, // Percentage of lessons completed (0-100)
+            completedLessonIds: [{ type: Schema.Types.ObjectId, ref: 'Lesson' }] // List of completed lesson IDs
+        }],
+        exercisesCompleted: [{
+            exerciseId: {
+                type: Schema.Types.ObjectId,
+                ref: 'Exercise'
+            },
+            completed: { type: Boolean, default: false }
+        }],
+        lastActive: { type: Date }
+    }
 }, {
     timestamps: true
 })

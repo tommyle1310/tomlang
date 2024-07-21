@@ -1,5 +1,5 @@
 import express from 'express';
-import { addExercise, deleteExercise, updateExercise } from '../controllers/exercise';
+import { addExercise, answerExercise, deleteExercise, updateExercise } from '../controllers/exercise';
 
 const router = express.Router();
 
@@ -11,6 +11,10 @@ router.patch('/:exerciseId', updateExercise);
 
 // add exercises
 router.post('/', addExercise);
+
+
+// add exercises
+router.post('/answer', answerExercise);
 
 // delete exercises
 router.delete('/:exerciseId', deleteExercise);

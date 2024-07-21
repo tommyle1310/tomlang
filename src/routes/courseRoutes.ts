@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { createCourse, getAllCourses, getCourseDetail, getPurchasedCourses, purchaseCourse, updateCourse } from '../controllers/course';
+import { createCourse, getAllCourses, getCourseDetail, getPurchasedCourses, purchaseCourse, updateCourse, updateCourseProgress } from '../controllers/course';
 import fileParser from '../middleware/fileParser';
 import { mustAuth } from '../middleware/auth';
 
@@ -14,10 +14,13 @@ router.get('/:courseId', getCourseDetail)
 
 // POST /api/lessons: Create a new lesson.
 router.post('/', createCourse)
+
 // PUT /api/lessons/: Update a lesson.
 router.patch('/:courseId', updateCourse)
 
 router.post('/purchase', mustAuth, purchaseCourse);
+
+router.patch('/update-course-progress/:courseId', mustAuth, updateCourseProgress);
 
 router.get('/purchase/:userId', mustAuth, getPurchasedCourses);
 
