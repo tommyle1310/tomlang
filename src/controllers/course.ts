@@ -7,7 +7,7 @@ import User from "../models/User";
 import * as formidable from 'formidable';
 import { IncomingForm } from 'formidable';
 import cloudinary from "../cloud";
-import { getAllCoursesAggregation } from "../utils/aggregation/course";
+import { getAllCoursesAggregation, getSpecificCourseDetailAggregation } from "../utils/aggregation/course";
 
 
 export const getAllCourses = async (req: Request, res: Response) => {
@@ -23,6 +23,29 @@ export const getAllCourses = async (req: Request, res: Response) => {
         return res.json({
             ...constResponse.ok,
             courses,
+            totalPages,
+            currentPage: page,
+            totalCourses
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error fetching courses', error });
+    }
+};
+
+export const getCourseDetail = async (req: Request, res: Response) => {
+    const { courseId } = req.params
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+        const course = await getSpecificCourseDetailAggregation(page, limit, courseId)
+
+        const totalCourses = await Course.countDocuments();
+        const totalPages = Math.ceil(totalCourses / limit);
+
+        return res.json({
+            ...constResponse.ok,
+            course,
             totalPages,
             currentPage: page,
             totalCourses
@@ -55,6 +78,9 @@ const isValidObjectId = (id: any) => mongoose.Types.ObjectId.isValid(id);
 export const updateCourse = async (req: Request, res: Response) => {
     const form = new IncomingForm();
     const { courseId } = req.params;
+
+    const existingCourse = await Course.findById(courseId)
+    if (!existingCourse) return res.status(404).json({ ...constResponse.notfound, message: 'Course not found' })
 
     form.parse(req, async (err, fields, files) => {
         if (err) {
@@ -155,4 +181,90 @@ export const updateCourse = async (req: Request, res: Response) => {
         return res.json({ ...constResponse.ok });
     });
 };
+
+export const purchaseCourse = async (req: Request, res: Response) => {
+    const { userId, courseId } = req.body;
+
+    if (!userId || !courseId) {
+        return res.status(400).json({ ...constResponse.missing, error: 'User ID and Course ID are required' });
+    }
+
+    // Validate ObjectIds
+    if (!mongoose.isValidObjectId(userId) || !mongoose.isValidObjectId(courseId)) {
+        return res.status(422).json({ ...constResponse.invalid, error: 'Invalid User ID or Course ID' });
+    }
+
+    try {
+        // Find the user and the course
+        const user = await User.findById(userId);
+        const course = await Course.findById(courseId);
+
+        if (!user) {
+            return res.status(404).json({ ...constResponse.notfound, error: 'User not found' });
+        }
+
+        if (!course) {
+            return res.status(404).json({ ...constResponse.notfound, error: 'Course not found' });
+        }
+
+        // Check if the course is already purchased
+        const alreadyPurchased = user.purchased?.some(p =>
+            p.type === 'Course' && p.item.toString() === courseId
+        );
+
+        if (alreadyPurchased) {
+            return res.status(400).json({ ...constResponse.duplicated, error: 'Course already purchased' });
+        }
+
+        // Add the course to the user's purchased list
+        user.purchased?.push({ type: 'Course', item: courseId });
+
+        // Update the user's purchased list
+        await user.save();
+
+        // Optionally, you might want to increment the enrollment count of the course
+        await Course.findByIdAndUpdate(courseId, { $inc: { enrollmentCount: 1 } });
+
+        return res.status(200).json({ ...constResponse.ok });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'An error occurred while purchasing the course' });
+    }
+};
+
+export const getPurchasedCourses = async (req: Request, res: Response) => {
+    const { userId } = req.params;
+
+    if (!userId) {
+        return res.status(400).json({ ...constResponse.missing, error: 'User ID is required' });
+    }
+
+    try {
+        // Validate ObjectId
+        if (!mongoose.isValidObjectId(userId)) {
+            return res.status(422).json({ ...constResponse.invalid, error: 'Invalid User ID' });
+        }
+
+        // Find the user with populated purchased items
+        const user = await User.findById(userId).populate({
+            path: 'purchased.item',
+            match: { type: 'Course' }, // Only populate if the type is 'Course'
+            select: 'title description price poster' // Adjust fields as needed
+        });
+
+        if (!user) {
+            return res.status(404).json({ ...constResponse.notfound, error: 'User not found' });
+        }
+
+        // Filter out non-course items
+        const purchasedCourses = user.purchased?.filter(p => p.type === 'Course');
+
+        return res.status(200).json({ ...constResponse.ok, purchasedCourses });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'An error occurred while fetching purchased courses' });
+    }
+};
+
+
 

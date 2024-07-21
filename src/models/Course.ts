@@ -18,7 +18,7 @@ export interface ICourse extends Document {
     poster: { url: string, key: string };
     level: 'beginner' | 'intermediate' | 'advanced';
     duration: string;
-    categories: string[];
+    categories: ObjectId[];
     language: mongoose.Types.ObjectId; // Reference to Language model
     enrollmentCount: number;
     rating: number;
@@ -108,7 +108,8 @@ const CourseSchema: Schema<ICourse> = new Schema({
     },
     categories: [
         {
-            type: String
+            type: Schema.Types.ObjectId,
+            ref: 'Category',
         }
     ],
     language: {

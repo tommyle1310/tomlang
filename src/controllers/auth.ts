@@ -38,7 +38,7 @@ export const login = async (req: Request, res: Response) => {
     const token = await jwt.sign({ userId: user._id }, JWT_SECRET)
     user.tokens.push(token)
     await user.save()
-    return res.json(constResponse.ok)
+    return res.json({ ...constResponse.ok, user })
 }
 
 export const updatePassword = async (req: updatePasswordRequest, res: Response) => {

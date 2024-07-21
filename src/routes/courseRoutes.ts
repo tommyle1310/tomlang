@@ -1,11 +1,13 @@
 import express, { Request, Response } from 'express';
-import { createCourse, getAllCourses, updateCourse } from '../controllers/course';
+import { createCourse, getAllCourses, getCourseDetail, getPurchasedCourses, purchaseCourse, updateCourse } from '../controllers/course';
 import fileParser from '../middleware/fileParser';
+import { mustAuth } from '../middleware/auth';
 
 const router = express.Router();
 
 // GET /api/lessons: Get all lessons.
 router.get('/', getAllCourses)
+router.get('/:courseId', getCourseDetail)
 
 // GET /api/lessons/: Get a specific lesson.
 // router.get('/')
@@ -14,6 +16,10 @@ router.get('/', getAllCourses)
 router.post('/', createCourse)
 // PUT /api/lessons/: Update a lesson.
 router.patch('/:courseId', updateCourse)
+
+router.post('/purchase', mustAuth, purchaseCourse);
+
+router.get('/purchase/:userId', mustAuth, getPurchasedCourses);
 
 // DELETE /api/lessons/: Delete a lesson.
 // GET /api/lessons/content/: Get lesson content.

@@ -1,5 +1,22 @@
 import { Request } from "express";
 
+declare global {
+    namespace Express {
+        interface Request {
+            user: {
+                id: any,
+                name: string,
+                email: string,
+                verified: boolean,
+                profilePic?: string,
+                followers: number,
+                followings: number
+            },
+            token: string
+        }
+    }
+}
+
 export interface registerRequest extends Request {
     body: { name: string, email: string, password: string, profilePic: string, age: string }
 }
