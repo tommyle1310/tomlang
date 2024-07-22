@@ -217,3 +217,42 @@ export const getSpecificCourseDetailAggregation = async (page: number, limit: nu
 
     return courses[0]
 }
+
+export const courseCategoryAggregation = async (page: number, limit: number, courseId: string) => {
+    const courses = await Course.aggregate([
+        { $match: { _id: new mongoose.Types.ObjectId(courseId) } },
+        // Stage 1: Skip and limit for pagination
+        { $skip: (page - 1) * limit },
+        { $limit: limit },
+        // Stage 5: Lookup to join Categories collection
+        {
+            $lookup: {
+                from: 'categories',
+                let: { categoryArray: "$categories" },
+                pipeline: [
+                    {
+                        $match: {
+                            $expr: {
+                                $in: ["$_id", { $map: { input: "$$categoryArray", as: "category", in: { $toObjectId: "$$category" } } }]
+                            }
+                        }
+                    }
+                ],
+                as: 'categoryDetails'
+            }
+        },
+        // Stage 7: Project the fields you want to include in the response
+        {
+            $project: {
+                categoryDetails: { $arrayElemAt: ["$categoryDetails", 0] },
+                _id: 0
+            }
+        },
+        {
+            $replaceRoot: {
+                newRoot: "$categoryDetails"
+            }
+        },
+    ]);
+    return courses
+}

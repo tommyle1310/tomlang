@@ -7,7 +7,7 @@ import User from "../models/User";
 import * as formidable from 'formidable';
 import { IncomingForm } from 'formidable';
 import cloudinary from "../cloud";
-import { getAllCoursesAggregation, getSpecificCourseDetailAggregation } from "../utils/aggregation/course";
+import { courseCategoryAggregation, getAllCoursesAggregation, getSpecificCourseDetailAggregation } from "../utils/aggregation/course";
 
 
 export const getAllCourses = async (req: Request, res: Response) => {
@@ -350,5 +350,44 @@ export const updateCourseProgress = async (req: Request, res: Response) => {
 };
 
 
+export const getCourseRecommendations = async (req: Request, res: Response) => {
+    const { courseId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    if (!courseId) {
+        return res.status(400).json({ ...constResponse.missing, error: 'Course ID is required' });
+    }
+
+    try {
+        // Validate ObjectId
+        if (!mongoose.isValidObjectId(courseId)) {
+            return res.status(422).json({ ...constResponse.invalid, error: 'Invalid course ID' });
+        }
+
+        const listCourseCategories = await courseCategoryAggregation(page, limit, courseId)
+        if (listCourseCategories.length === 0) {
+            throw new Error('No category details found.');
+        }
+
+        const { _id: categoryId, tags: categoryTags } = listCourseCategories[0];
+
+        // Step 2: Find courses matching the extracted category and tags
+        const matchingCourses = await Course.find({
+            $or: [
+                { categories: categoryId },
+                { tags: { $in: categoryTags } }
+            ],
+        }, {
+            poster: 1, likes: 1, enrollmentCount: 1, price: 1, level: 1, language: 1
+        }).populate('language');
+
+        const courses = matchingCourses
+        return res.status(200).json({ ...constResponse.ok, courses });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'An error occurred while fetching purchased courses' });
+    }
+};
 
 
