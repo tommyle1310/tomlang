@@ -8,33 +8,59 @@ import { IncomingForm } from 'formidable';
 
 export const addLanguage = async (req: Request, res: Response) => {
     try {
-        const { name, flag } = req.body;
-        if (!name) {
-            return res.status(400).json({ message: 'Language name is required.' });
-        }
+        const form = new IncomingForm();
 
-        // Check if the language already exists
-        const existingLanguage = await Language.findOne({ name });
-        if (existingLanguage) {
-            return res.status(422).json({ message: 'Language name must be unique.' });
-        }
+        form.parse(req, async (err, fields, files) => {
+            if (err) {
+                console.error('Error parsing form data:', err);
+                return res.status(500).json({ message: 'Error parsing form data' });
+            }
 
-        // Create and save the new language
-        const newLanguage = new Language({ name, flag });
-        await newLanguage.save();
+            const name = Array.isArray(fields.name) ? fields.name[0] : fields.name;
+            const flag = files.flag ? (Array.isArray(files.flag) ? files.flag[0] : files.flag) : null;
 
-        return res.json({ ...constResponse.ok });
+            if (!name) {
+                return res.status(400).json({ ...constResponse.missing, message: 'Language name is required.' });
+            }
+
+            // Check if a language with the new name already exists
+            const existingLanguageWithName = await Language.findOne({ name });
+            if (existingLanguageWithName) {
+                return res.status(422).json({ ...constResponse.duplicated, message: 'A language with this name already exists.' });
+            }
+
+            const language = new Language({ name });
+
+            if (flag) {
+                try {
+                    const imgRes = await cloudinary.uploader.upload(flag.filepath, {
+                        width: 300, height: 300,
+                        crop: 'thumb', gravity: 'face'
+                    });
+
+                    language.flag = { url: imgRes.secure_url, key: imgRes.public_id };
+                } catch (err) {
+                    console.error('Error uploading poster to Cloudinary:', err);
+                    return res.status(500).json({ message: 'Failed to upload poster image.' });
+                }
+            }
+
+            await language.save();
+
+            return res.json({ ...constResponse.ok, language });
+        });
     } catch (e: any) {
+        console.error(e);
         if (e.name === 'MongoServerError' && e.code === 11000) {
             // Handle duplicate key error
             return res.status(422).json({ message: 'Language name must be unique.' });
         } else {
             // Handle other errors
-            console.error(e);
             return res.status(500).json({ message: 'An error occurred while adding the language.' });
         }
     }
 };
+
 
 export const updateLanguage = async (req: Request, res: Response) => {
     try {
