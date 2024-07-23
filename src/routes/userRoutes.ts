@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
-import { getUserProfile } from '../controllers/user';
+import { getUserProfile, updateAvatar } from '../controllers/user';
+import fileParser from '../middleware/fileParser';
 
 const router = express.Router();
 
@@ -7,9 +8,7 @@ const router = express.Router();
 router.get('/profile/:userId', getUserProfile);
 
 // PUT /api/users/profile/:userId
-router.put('/profile/:userId', (req: Request, res: Response) => {
-    // Implementation for updating user profile
-});
+router.patch('/profile/avatar/:userId', fileParser, updateAvatar);
 
 // DELETE /api/users/:userId
 router.delete('/:userId', (req: Request, res: Response) => {

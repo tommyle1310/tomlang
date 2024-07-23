@@ -11,6 +11,7 @@ import languageRoutes from './routes/languageRoutes';
 import categoryRoutes from './routes/categoryRoutes';
 import lessonRoutes from './routes/lessonRoutes';
 import exerciseRoutes from './routes/exerciseRoutes';
+import progressRoutes from './routes/progressRoutes';
 import './db'
 import { PORT } from './utils/env';
 // Import other route handlers as needed
@@ -31,6 +32,7 @@ app.use('/api/language', languageRoutes);
 app.use('/api/category', categoryRoutes);
 app.use('/api/lesson', lessonRoutes);
 app.use('/api/exercise', exerciseRoutes);
+app.use('/api/progress', progressRoutes);
 // Mount other routes similarly
 
 // Start server

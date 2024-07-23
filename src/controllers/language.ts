@@ -66,7 +66,7 @@ export const updateLanguage = async (req: Request, res: Response) => {
     try {
         const form = new IncomingForm()
         const { languageId } = req.params;
-        const { name, flag } = req.body;
+        const { name } = req.body;
 
         // Check if a language with the new name already exists
         const existingLanguageWithName = await Language.findOne({ name });

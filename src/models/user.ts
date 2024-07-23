@@ -14,7 +14,7 @@ export interface userDocument {
     verified: boolean;
     profilePic?: {
         url: string;
-        publicId: string;
+        key: string;
     };
     tokens: string[];
     favorites: ObjectId[];
@@ -60,7 +60,7 @@ const userSchema = new Schema<userDocument, {}, Methods>({
     profilePic: {
         type: Object,
         url: String,
-        publicId: String
+        key: String
     },
     verified: {
         type: Boolean,
