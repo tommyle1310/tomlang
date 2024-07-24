@@ -3,15 +3,12 @@ import 'dotenv/config'
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import morgan from 'morgan';
-import userRoutes from './routes/userRoutes';
-import authRoutes from './routes/authRoutes';
-import emailRoutes from './routes/emailRoutes';
-import courseRoutes from './routes/courseRoutes';
-import languageRoutes from './routes/languageRoutes';
-import categoryRoutes from './routes/categoryRoutes';
-import lessonRoutes from './routes/lessonRoutes';
-import exerciseRoutes from './routes/exerciseRoutes';
-import progressRoutes from './routes/progressRoutes';
+import {
+    courseRoutes, userRoutes, userAnalyticRoutes,
+    authRoutes, categoryRoutes, emailRoutes,
+    exerciseRoutes, languageRoutes, lessonRoutes,
+    progressRoutes
+} from './routes'
 import './db'
 import { PORT } from './utils/env';
 // Import other route handlers as needed
@@ -33,6 +30,7 @@ app.use('/api/category', categoryRoutes);
 app.use('/api/lesson', lessonRoutes);
 app.use('/api/exercise', exerciseRoutes);
 app.use('/api/progress', progressRoutes);
+app.use('/api/user-analytics', userAnalyticRoutes);
 // Mount other routes similarly
 
 // Start server
