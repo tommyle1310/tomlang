@@ -7,7 +7,7 @@ import {
     courseRoutes, userRoutes, userAnalyticRoutes,
     authRoutes, categoryRoutes, emailRoutes,
     exerciseRoutes, languageRoutes, lessonRoutes,
-    progressRoutes
+    progressRoutes, forumRoutes
 } from './routes'
 import './db'
 import { PORT } from './utils/env';
@@ -31,6 +31,7 @@ app.use('/api/lesson', lessonRoutes);
 app.use('/api/exercise', exerciseRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/user-analytics', userAnalyticRoutes);
+app.use('/api/forum', forumRoutes);
 // Mount other routes similarly
 
 // Start server

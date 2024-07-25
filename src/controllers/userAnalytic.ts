@@ -104,7 +104,6 @@ export const getAnalyticsData = async (req: Request, res: Response) => {
     }
 };
 
-
 // Update existing analytics data or create new if not found
 export const updateUserAnalytics = async (req: updateUserAnalyticsRequest, res: Response) => {
     const { userId } = req.params;

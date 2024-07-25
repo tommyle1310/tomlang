@@ -8,6 +8,7 @@ import lessonRoutes from './lessonRoutes';
 import exerciseRoutes from './exerciseRoutes';
 import progressRoutes from './progressRoutes';
 import userAnalyticRoutes from './userAnalyticRoutes';
+import forumRoutes from './forumRoutes';
 export {
     userRoutes,
     authRoutes,
@@ -18,5 +19,6 @@ export {
     lessonRoutes,
     exerciseRoutes,
     progressRoutes,
-    userAnalyticRoutes
+    userAnalyticRoutes,
+    forumRoutes,
 }
