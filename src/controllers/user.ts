@@ -5,6 +5,8 @@ import User from "../models/User"
 import cloudinary from "../cloud";
 import { IncomingForm } from 'formidable';
 import { RequestWithFiles } from "../middleware/fileParser";
+import { getAllCoursesAggregation } from "../utils/aggregation/course";
+import { getAllUsersAggregation } from "../utils/aggregation/user";
 
 
 
@@ -78,3 +80,24 @@ export const updateAvatar = async (req: RequestWithFiles, res: Response) => {
     }
 };
 
+export const getAllUsers = async (req: Request, res: Response) => {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    try {
+        const courses = await getAllUsersAggregation(page, limit)
+
+        const totalCourses = await User.countDocuments();
+        const totalPages = Math.ceil(totalCourses / limit);
+
+        return res.json({
+            ...constResponse.ok,
+            courses,
+            totalPages,
+            currentPage: page,
+            totalCourses
+        });
+    } catch (error) {
+        return res.status(500).json({ message: 'Error fetching courses', error });
+    }
+};

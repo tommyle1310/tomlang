@@ -5,6 +5,8 @@ interface errorMessage {
     unknown: { EC: number, EM: string },
     invalid: { EC: number, EM: string },
     notfound: { EC: number, EM: string },
+    notVerified: { EC: number, EM: string },
+    notPermit: { EC: number, EM: string },
 }
 export const constResponse: errorMessage = {
     ok: {
@@ -23,6 +25,12 @@ export const constResponse: errorMessage = {
         EC: 4, EM: 'invalid request'
     },
     notfound: {
-        EC: 4, EM: 'not found record'
+        EC: 5, EM: 'not found record'
+    },
+    notVerified: {
+        EC: 6, EM: 'You must verified first'
+    },
+    notPermit: {
+        EC: 7, EM: 'You are not allowed'
     }
 }
