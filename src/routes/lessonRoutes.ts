@@ -1,5 +1,5 @@
 import express from 'express';
-import { addLesson, deleteLesson, deleteLessonContent, getAllLessons, getSpecificLesson, updateLesson, updateLessonContent } from '../controllers/lesson';
+import { addLesson, addLessonAtIndex, deleteLesson, deleteLessonContent, getAllLessons, getSpecificLesson, updateLesson, updateLessonContent } from '../controllers/lesson';
 
 const router = express.Router();
 
@@ -17,6 +17,9 @@ router.patch('/:lessonId', updateLesson);
 
 // add lesson
 router.post('/', addLesson);
+
+// add lesson at index
+router.post('/:index', addLessonAtIndex);
 
 // delete lesson content
 router.delete('/content/:lessonContentId', deleteLessonContent);

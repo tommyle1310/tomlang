@@ -5,6 +5,10 @@ export interface addLessonRequest extends Request {
     body: {
         title: string,
         content: string,
-        courseId: ObjectId
+        courseId: ObjectId,
+        index: number
+    },
+    params: {
+        index: string
     }
 }

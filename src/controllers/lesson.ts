@@ -1,7 +1,7 @@
 import { Request, Response } from "express"
 import { constResponse } from "../utils/constants/commonMessages"
 import Course from "../models/Course"
-import mongoose, { isValidObjectId, ObjectId } from "mongoose"
+import mongoose, { isValidObjectId, ObjectId, Types } from "mongoose"
 import { getAllLessonsHelper } from "../utils/aggregation/lesson"
 import { addLessonRequest } from "../@types/request/lesson"
 import Lesson from "../models/Lesson"
@@ -141,6 +141,60 @@ export const addLesson = async (req: addLessonRequest, res: Response) => {
         return res.status(500).json({ ...constResponse.unknown });
     }
 };
+
+export const addLessonAtIndex = async (req: addLessonRequest, res: Response) => {
+    const { content, courseId, title } = req.body;
+    const { index } = req.params
+    const i = +index
+
+    // Validate input fields
+    if (!content || !courseId || !title || i === undefined || !Array.isArray(content) || content.length === 0) {
+        return res.status(400).json({ ...constResponse.missing });
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+        return res.status(404).json({ ...constResponse.notfound, message: 'Course not found' });
+    }
+
+    // Validate the index
+    if (i < 0 || i > course.lessons.length) {
+        return res.status(400).json({ ...constResponse.invalid, message: 'Invalid index' });
+    }
+
+    // Create and save multiple lesson content items
+    const lessonContentIds: Types.ObjectId[] = [];
+    try {
+        for (const c of content) {
+            const lessonContent = new LessonContent({ content: c });
+            await lessonContent.save();
+            lessonContentIds.push(lessonContent._id as Types.ObjectId); // Cast _id as ObjectId
+        }
+
+        // Create a new lesson
+        const lesson = new Lesson({
+            title,
+            content: lessonContentIds
+        });
+
+        // Save the lesson
+        await lesson.save();
+
+        // Insert the lesson at the specified index
+        course.lessons.splice(i, 0, lesson._id as Types.ObjectId); // Use Types.ObjectId for _id
+        await course.save();
+
+        return res.status(201).json({ ...constResponse.ok, lesson });
+    } catch (err) {
+        console.error('Error adding lesson at index:', err);
+        return res.status(500).json({ ...constResponse.unknown });
+    }
+};
+
+
+
+
+
 
 
 export const updateLessonContent = async (req: Request, res: Response) => {
